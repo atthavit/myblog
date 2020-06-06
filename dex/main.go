@@ -28,6 +28,7 @@ func main() {
 	}
 	http.HandleFunc("/", a.handleIndex)
 	http.HandleFunc("/login", a.handleLogin)
+	http.HandleFunc("/logout", a.handleLogout)
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
@@ -43,10 +44,6 @@ type Claims struct {
 	FederatedClaims struct {
 		ConnectorID string `json:"connector_id"`
 	} `json:"federated_claims"`
-}
-
-func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, a.oauth2Config.AuthCodeURL("example-state"), http.StatusSeeOther)
 }
 
 func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -72,25 +69,41 @@ func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if token, err := r.Cookie("token"); err == nil {
-		a.printUser(w, token.Value)
+		if err := a.printUser(w, token.Value); err != nil {
+			log.Println(err)
+			a.handleLogout(w, r)
+		}
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprint(w, `not logged in, <a href="/login">log in</a>`)
 }
 
-func (a *app) printUser(w http.ResponseWriter, token string) {
+func (a *app) handleLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   cookieName,
+		Value:  "",
+		MaxAge: -1,
+	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (a *app) handleLogin(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, a.oauth2Config.AuthCodeURL("example-state"), http.StatusSeeOther)
+}
+
+func (a *app) printUser(w http.ResponseWriter, token string) error {
 	idToken, err := a.verifier.Verify(context.TODO(), token)
 	if err != nil {
-		log.Printf("Cannot verify token: %v", err)
-		http.Error(w, "error", http.StatusInternalServerError)
+		return fmt.Errorf("Cannot verify token: %w", err)
 	}
 
 	var claims Claims
 	if err := idToken.Claims(&claims); err != nil {
-		http.Error(w, "error", http.StatusInternalServerError)
+		return err
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, `logged in as %s from %s`, claims.Email, claims.FederatedClaims.ConnectorID)
+	fmt.Fprintf(w, `logged in as %s from %s, <a href="/logout">logout</a>`, claims.Email, claims.FederatedClaims.ConnectorID)
+	return nil
 }
