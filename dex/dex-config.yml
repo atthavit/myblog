@@ -1,0 +1,33 @@
+issuer: http://localhost:5556/dex
+
+storage:
+  type: sqlite3
+  config:
+    file: /tmp/dex.db
+
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+- id: example
+  redirectURIs:
+    - 'http://localhost:8000'
+  name: 'example'
+  secret: secret
+
+connectors:
+- type: github
+  id: github
+  name: GitHub
+  config:
+    clientID: 45a047733948e30f0a32
+    clientSecret: aa3c074f5c6f45e47e3429e943d7441e6f751993
+    redirectURI: http://localhost:5556/dex/callback
+
+enablePasswordDB: false
+
+frontend:
+  issuer: example

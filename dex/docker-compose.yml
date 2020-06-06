@@ -1,0 +1,11 @@
+version: '3'
+services:
+  dex:
+    image: quay.io/dexidp/dex:v2.17.0
+    command:
+      - serve
+      - /dex-config.yml
+    volumes:
+      - ./dex-config.yml:/dex-config.yml:ro
+    ports:
+      - '5556:5556'
