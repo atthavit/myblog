@@ -1,0 +1,8 @@
+title: Home
+views:
+  - title: Bedroom
+    cards:
+      - type: entities
+        title: AC
+        entities:
+          - switch.bedroom_ac
