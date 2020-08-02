@@ -1,0 +1,31 @@
+version: '3'
+services:
+  hass:
+    image: homeassistant/home-assistant:0.113.3
+    restart: unless-stopped
+    volumes:
+      - ./config:/config
+      - ./static/configuration.yaml:/config/configuration.yaml:ro
+      - ./static/ui-lovelace.yaml:/config/ui-lovelace.yaml:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 8123:8123
+
+  deconz:
+    image: marthoc/deconz:amd64-2.05.79
+    restart: unless-stopped
+    volumes:
+      - ./deconz:/root/.local/share/dresden-elektronik/deCONZ
+    devices:
+      - /dev/ttyACM0
+    ports:
+      - 8124:8124
+      - 8125:8125
+    environment:
+      - DECONZ_WEB_PORT=8124
+      - DECONZ_WS_PORT=8125
+      - DEBUG_INFO=1
+      - DEBUG_APS=0
+      - DEBUG_ZCL=0
+      - DEBUG_ZDP=0
+      - DEBUG_OTAU=0

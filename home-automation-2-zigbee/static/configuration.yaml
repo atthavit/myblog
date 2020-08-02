@@ -1,0 +1,44 @@
+default_config:
+lovelace:
+  mode: yaml
+
+switch:
+  - platform: broadlink
+    host: 192.168.xxx.xxx
+    mac: 'xx:xx:xx:xx:xx:xx'
+    type: rm4c_mini
+    switches:
+      bedroom_ac:
+        friendly_name: Bedroom AC
+        command_on: JgBQAg8PDQ4ODhANDg8NAANBcjkNKw4PDQ8PDQ4qDw0PDg4ODw0QKQ8ODisNKhENDygQKQ4qESgPKg8ODg0PKg4PDg4ODw0OEA0ODw0PDg4ODg4ODioPDg4qDw8NDw4ODioOKhANEA0ODg8ODQ8PDQ4ODw4NDw4OEAwPDg8pDg8ODQ4PDykQKQ8oEA8NDw4qDSsPKg8ABHZxOA8rDg0PDw0PDSsPDQ4ODw4ODw0qEA4NKhApDg8OKw4pDyoOKxEnEA0ODw0qDw4PDg4NDw8PDQ0PDg4QDA8ODg4ODg8pDw8NDw0PDg4NKw8ODw0ODg8ODg8NDw0PDg4ODg4OEA0ODw0ODw0PDw0ODg8ODg4PDikQDQ4qDw4OKhANDgAEdnI4ECkPDg4NDw4PKRANEAwPDg4ODioPDg4qDyoPDQ8pDyoQKQ8pDyoPDQ8ODioQDBAODQ4PDQ8ODg8NDg8ODw0ODg8ODQ8ODg8NDw4ODg8NDw4OKhANDQ8PKQ8qDyoPDQ4ODw4PDQ4qDw4OKhApDg4PDRANDg8ODQ8ODg4PDQ8ODw0ODhANDw0ODg8NDyoPDQ8qDg4PDg8NDg4PDg4ODg4PDREMDg4ODg8ODg4ODg8NDw4ODg8qDioQDQ4ODg4PDQ8ODg4PDQ8ODg4ODg8qDioPDg4ODw0PDg4ODw0PDg4ODg4PDQ8ODg4PDQ8ODg4PDQ8ODioPDQ8ODg4PDQ8ODioPKQ8ODw0PDg4ODw0PDg4ODyoODg4ODw4ODg4ODw0PDg4ODw0PKg8pDw4ODg8NDyoPKg4ADQUQKQ8ODg0PDg==
+        command_off: JgBQAg8NEA0ODg4ODg4PAANAcjgPKg4ODw0PDg8pEA0ODhAMEAwPKg8ODioPKg8NDisOKhApDykPKg8NDw4PKQ8ODg4ODw0PDg4PDQ4ODw4ODg4ODyoODw0rDw0ODhANDioQKRANDg4ODg4ODw4ODhELDg4QDQ4ODg4PDg0PDg4ODhANDykPKg4qEA0OKg8ODioPKg4ABHdxOA8qDw0PDg8ODikQDg0PDg4ODg4qEA0OKg8qDw0PKg4qECkOKg8qDw0PDhAoDw4ODw4ODw0ODg4PDg4ODw0ODg4PDg4qDw0QDQ4ODw0QKQ8NDg8ODw0PDg0PDw0ODw0PDw0PDQ4PDg4PDg4NDhANDw0PDg8ODSoPDg4qDw4OKg8ODgAEdnI5DSsQDQ0PDg4OKg4ODw8PDA8ODioQDA8qDioQDg4pECkPKQ8qDyoPDg0PDioPDg4ODg8ODg4NDw8ODw0NDw4ODg4PDw0ODw0ODw0PDg0QDg4ODg4ODg8OKw4qDioPDg4ODw0OKw8pDw4OKg8qDw4ODg4ODw4NDw4ODg8ODg0PDg4PKRApDioPKg4PDioPDg4qDg4PDg4PDg4ODRANDg4ODw4ODg4ODw4ODw4ODg4ODg4ODw4qDioPDQ8ODg8ODg4ODg8NDg8ODg8ODQ8qDioPDw0PDQ8ODRAODQ8ODg4PDQ8ODRAODQ4PDg4ODw0ODg8ODioODg8ODg4ODw8NDioPKg4ODg8ODg4PDQ4PDg4PDSoQDg0ODw4QDA4ODg8QDA4ODg4PKg4qDw4OKg8ODSsQKQ8ADQUNKxANDQ8ODg==
+
+automation:
+  - alias: kitchen water leak
+    trigger:
+      platform: state
+      entity_id: binary_sensor.kitchen_water
+      to: 'on'
+      for:
+        seconds: 10
+    action:
+      - service: notify.slack
+        data_template:
+          message: &water_leak_message Water detected in kitchen!
+      - service: notify.call
+        data_template:
+          message: *water_leak_message
+          target: &phone_number +66xxxxxxxxx
+
+notify:
+  - name: slack
+    platform: slack
+    api_key: xoxb-xxxxxxxxxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx
+    default_channel: '#home'
+  - name: call
+    platform: twilio_call
+    from_number: *phone_number
+
+twilio:
+  account_sid: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  auth_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

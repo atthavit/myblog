@@ -1,0 +1,13 @@
+title: Home
+views:
+  - title: Home
+    cards:
+      - type: entities
+        title: AC
+        entities:
+          - switch.bedroom_ac
+
+      - type: glance
+        title: Sensors
+        entities:
+          - binary_sensor.kitchen_water
