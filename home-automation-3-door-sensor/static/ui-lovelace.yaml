@@ -1,0 +1,8 @@
+title: Home
+views:
+  - title: Home
+    cards:
+      - type: entities
+        title: Bedroom
+        entities:
+          - light.bedroom
