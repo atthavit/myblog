@@ -1,0 +1,13 @@
+default_config:
+lovelace:
+  mode: yaml
+
+automation:
+  - alias: living room light
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion
+    action:
+      - service_template: "switch.turn_{{ trigger.to_state.state }}"
+        data:
+          entity_id: switch.living_room_light
